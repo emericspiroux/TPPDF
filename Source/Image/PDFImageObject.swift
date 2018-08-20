@@ -6,6 +6,7 @@
 //
 
 // swiftlint:disable function_body_length
+import CoreGraphics
 
 /**
  Calculates the given image and a caption if necessary
@@ -112,11 +113,13 @@ class PDFImageObject: PDFObject {
     }
 
     override func draw(generator: PDFGenerator, container: PDFContainer) throws {
-        PDFGraphics.resizeAndCompressImage(image: image.image,
-                                           frame: frame,
-                                           shouldResize: image.options.contains(.resize),
-                                           shouldCompress: image.options.contains(.compress),
-                                           quality: image.quality).draw(in: self.frame)
+        let image = PDFGraphics.resizeAndCompressImage(image: self.image.image, frame: frame, quality: self.image.quality)
+        if let radius = self.image.radiusBorder {
+            let path = UIBezierPath(roundedRect: self.frame, cornerRadius: radius)
+            image.draw(with: path)
+        } else {
+            image.draw(in: self.frame)
+        }
     }
 
     func updateHeights(generator: PDFGenerator, container: PDFContainer) {
@@ -125,5 +128,17 @@ class PDFImageObject: PDFObject {
 
     override var copy: PDFObject {
         return PDFImageObject(image: self.image.copy, captionSpacing: self.captionSpacing)
+    }
+}
+
+extension UIImage {
+    func draw(with bezierPath:UIBezierPath){
+        if let context = UIGraphicsGetCurrentContext() {
+            context.saveGState()
+            context.addPath(bezierPath.cgPath)
+            context.clip()
+            self.draw(in: bezierPath.bounds)
+            context.restoreGState()
+        }
     }
 }

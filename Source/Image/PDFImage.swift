@@ -39,9 +39,12 @@ public class PDFImage: PDFJSONSerializable {
     public var quality: CGFloat
 
     /**
+     Add Radius border on image.
 
-    */
-    public var options: PDFImageOptions
+     Value ranges between nil and 50.0
+     if nil, no radius will be applied.
+     */
+    public var radiusBorder: CGFloat?
 
     /**
      Initializer to create a PDF image element.
@@ -57,21 +60,16 @@ public class PDFImage: PDFJSONSerializable {
                 size: CGSize = .zero,
                 sizeFit: PDFImageSizeFit = .widthHeight,
                 quality: CGFloat = 0.85,
-                options: PDFImageOptions = [.resize, .compress]) {
+                radiusBorder:CGFloat? = nil) {
         self.image = image
         self.caption = caption
         self.size = (size == .zero) ? image.size : size
         self.sizeFit = sizeFit
         self.quality = quality
-        self.options = options
+        self.radiusBorder = radiusBorder;
     }
 
     var copy: PDFImage {
-        return PDFImage(image: self.image,
-                        caption: self.caption?.copy,
-                        size: self.size,
-                        sizeFit: self.sizeFit,
-                        quality: self.quality,
-                        options: self.options)
+        return PDFImage(image: self.image, caption: self.caption?.copy, size: self.size, sizeFit: self.sizeFit, quality: self.quality, radiusBorder:self.radiusBorder)
     }
 }
